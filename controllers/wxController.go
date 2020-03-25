@@ -3,9 +3,9 @@ package controllers
 import (
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"superMarket/wxapi"
-	"time"
 )
 
 type WxController struct {
@@ -33,23 +33,50 @@ func (a *WxController) ListenMessage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 500)
 		return
 	}
+	msgType := &wxapi.MessageType{}
+	err = msgType.UnMarshal(body)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	if msgType.MsgType.Text == "text" {
+		message := &wxapi.TextMessage{}
+		err := message.UnMarshal(body)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+		str, err := message.ReplyTest()
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+		io.WriteString(w, str)
+	} else if msgType.MsgType.Text == "event" {
+		log.Println("msgType:event")
+		eventType := &wxapi.EventType{}
+		err = eventType.Unmarshal(body)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+		if eventType.Event.Text == "subscribe" {
+			subscribe := &wxapi.Subscribe{}
+			err := subscribe.Unmarshal(body)
+			if err != nil {
+				http.Error(w, err.Error(), 500)
+				return
+			}
+			reply, err := subscribe.SubscribeReply()
+			if err != nil {
+				http.Error(w, err.Error(), 500)
+				return
+			}
+			io.WriteString(w, reply)
+		} else {
 
-	msg, err := wxapi.ListenMessage(body)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
+		}
+	} else {
+		io.WriteString(w, "没有匹配到相应的功能")
 	}
-	respMsg := &wxapi.TextMessage{}
-	respMsg.ToUserName.Text = msg.FromUserName.Text
-	respMsg.FromUserName.Text = msg.ToUserName.Text
-	respMsg.CreateTime = int(time.Now().Unix())
-	respMsg.MsgType.Text = "text"
-	respMsg.Content.Text = msg.Content.Text
-	respMsg.MsgId = msg.MsgId
-	result, err := respMsg.Marshal()
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-	io.WriteString(w, result)
 }
