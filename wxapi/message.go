@@ -20,7 +20,13 @@ type TextMessage struct {
 	CreateTime   int
 	MsgType      CDATA
 	Content      CDATA
-	MsgId        int
+	MsgId        int64
+}
+
+func (a *TextMessage) Marshal() (result string, err error) {
+	arrbyte, err := xml.Marshal(a)
+	result = string(arrbyte)
+	return result, err
 }
 
 func ValidateSignature(signature string, timestamp string, nonce string) bool {

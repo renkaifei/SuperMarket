@@ -14,7 +14,6 @@ func main() {
 	http.HandleFunc("/goods/selectById", goodsController.SelectById)
 
 	wxController := &controllers.WxController{}
-	http.HandleFunc("/wx/validateSignature", wxController.ValidateSignature)
 	http.HandleFunc("/wx/ListenMessage", wxController.ListenMessage)
 	err := http.ListenAndServe(":80", nil)
 	if err != nil {
