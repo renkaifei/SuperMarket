@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"superMarket/wxapi"
+	"superMarket/wxapi/message"
 )
 
 type WxController struct {
@@ -33,20 +34,20 @@ func (a *WxController) ListenMessage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	msgType := &wxapi.MessageType{}
+	msgType := &message.MessageType{}
 	err = msgType.UnMarshal(body)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
 	if msgType.MsgType.Text == "text" {
-		message := &wxapi.TextMessage{}
-		err := message.UnMarshal(body)
+		textMsg := &message.TextMessage{}
+		err := textMsg.UnMarshal(body)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return
 		}
-		str, err := message.ReplyTest()
+		str, err := textMsg.Reply()
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return
@@ -54,14 +55,14 @@ func (a *WxController) ListenMessage(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, str)
 	} else if msgType.MsgType.Text == "event" {
 		log.Println("msgType:event")
-		eventType := &wxapi.EventType{}
+		eventType := &message.EventType{}
 		err = eventType.Unmarshal(body)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return
 		}
 		if eventType.Event.Text == "subscribe" {
-			subscribe := &wxapi.Subscribe{}
+			subscribe := &message.Subscribe{}
 			err := subscribe.Unmarshal(body)
 			if err != nil {
 				http.Error(w, err.Error(), 500)

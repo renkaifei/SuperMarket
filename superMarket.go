@@ -7,6 +7,8 @@ import (
 )
 
 func main() {
+	http.Handle("/wxtxt/", http.StripPrefix("/wxtxt/", http.FileServer(http.Dir("wxtxt"))))
+
 	goodsController := &controllers.GoodsController{}
 	http.HandleFunc("/goods/create", goodsController.Create)
 	http.HandleFunc("/goods/update", goodsController.Update)
