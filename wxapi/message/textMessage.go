@@ -59,7 +59,7 @@ func (a *TextMessage) UploadGoods() (ret string, err error) {
 	v.FromUserName.Text = a.ToUserName.Text
 	v.CreateTime = int(time.Now().Unix())
 	v.MsgType.Text = a.MsgType.Text
-	v.Content.Text = `<a href="https://www.baidu.com">上传宝贝</a>`
+	v.Content.Text = "<a href=\"http://www.daxuebaokao.cn/views/login.html?fromUserName=" + a.FromUserName.Text + "\">上传宝贝</a>"
 	data, err := xml.Marshal(v)
 	if err != nil {
 		return err.Error(), nil

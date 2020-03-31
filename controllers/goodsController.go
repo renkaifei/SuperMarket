@@ -21,7 +21,12 @@ func (a *GoodsController) Create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	goods := repo.NewGoods(0, goodsCode, goodsName, categoryId, goodsBarCode)
+	merchantId, err := strconv.Atoi(r.PostFormValue("merchantId"))
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	goods := repo.NewGoods(0, goodsCode, goodsName, categoryId, goodsBarCode, merchantId)
 	err = goods.Create()
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -50,7 +55,12 @@ func (a *GoodsController) Update(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	goods := repo.NewGoods(goodsId, goodsCode, goodsName, categoryId, goodsBarCode)
+	merchantId, err := strconv.Atoi(r.PostFormValue("merchantId"))
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	goods := repo.NewGoods(goodsId, goodsCode, goodsName, categoryId, goodsBarCode, merchantId)
 	err = goods.Update()
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -71,7 +81,7 @@ func (a *GoodsController) Delete(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	goods := repo.NewGoods(goodsId, "", "", 0, "")
+	goods := repo.NewGoods(goodsId, "", "", 0, "", 0)
 	err = goods.Delete()
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -92,13 +102,34 @@ func (a *GoodsController) SelectById(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	goods := repo.NewGoods(goodsId, "", "", 0, "")
+	goods := repo.NewGoods(goodsId, "", "", 0, "", 0)
 	err = goods.SelectById()
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
 	result, err := json.Marshal(goods)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	io.WriteString(w, string(result))
+}
+
+func (a *GoodsController) SelectInMerchant(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	merchantId, err := strconv.Atoi(r.PostFormValue("merchantId"))
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	goodses := &repo.Goodses{}
+	err = goodses.SelectInMerchant(merchantId)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	result, err := json.Marshal(goodses.Values)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
