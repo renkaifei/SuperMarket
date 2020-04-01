@@ -1,13 +1,26 @@
 package controllers
 
 import (
+	"encoding/json"
+	"fmt"
+	"github.com/satori/go.uuid"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
+	"superMarket/repo"
 	"superMarket/wxapi"
 	"superMarket/wxapi/message"
+	"time"
 )
+
+type JsapiTicket struct {
+	AppId     string `json:"appId"`
+	NonceStr  string `json:"nonceStr"`
+	Timestamp string `json:"timestamp"`
+	Signature string `json:"signature"`
+}
 
 type WxController struct {
 }
@@ -80,4 +93,49 @@ func (a *WxController) ListenMessage(w http.ResponseWriter, r *http.Request) {
 	} else {
 		io.WriteString(w, "没有匹配到相应的功能")
 	}
+}
+
+func (a *WxController) QueryConfig(w http.ResponseWriter, r *http.Request) {
+	nonceStr, err := createNonceStr()
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
+	url := r.PostFormValue("url")
+	jsapiTicket, err := queryJsapiTicket()
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	signature := wxapi.CalculateSignature(nonceStr, jsapiTicket, timestamp, url)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	ticket := &JsapiTicket{AppId: wxapi.AppID, Timestamp: timestamp, NonceStr: nonceStr, Signature: signature}
+	arrByte, err := json.Marshal(ticket)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	io.WriteString(w, string(arrByte))
+}
+
+func createNonceStr() (string, error) {
+	u, err := uuid.NewV4()
+	if err != nil {
+		return "", err
+	}
+	tempStr := fmt.Sprintf("%s", u)
+	return tempStr, nil
+}
+
+func queryJsapiTicket() (string, error) {
+	result, err := repo.GetKey("jsapi_ticket")
+	if err != nil {
+		return "", err
+	}
+	return result, nil
 }

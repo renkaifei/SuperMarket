@@ -22,10 +22,7 @@ func GetKey(key string) (ret string, err error) {
 		return "", err
 	}
 	defer conn.Close()
-	result, err := redis.String(conn.Do("GET", "key"))
-	if err != nil && err != redis.ErrNil {
-		return "", err
-	}
+	result, err := redis.String(conn.Do("GET", key))
 	return result, nil
 }
 
