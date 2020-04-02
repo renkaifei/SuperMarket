@@ -23,12 +23,16 @@ func main() {
 
 	wxController := &controllers.WxController{}
 	http.HandleFunc("/wx/ListenMessage", wxController.ListenMessage)
+	http.HandleFunc("/wx/QueryConfig", MyHandlerFunc2(wxController.QueryConfig))
 
 	merchanterController := &controllers.MerchanterController{}
 	http.HandleFunc("/login", merchanterController.Login)
 
 	merchantController := &controllers.MerchantController{}
 	http.HandleFunc("/merchant/selectById", MyHandlerFunc(merchantController.SelectById))
+
+	goodsCategory := &controllers.GoodsCategoryController{}
+	http.HandleFunc("/goodsCategory/selectByName", MyHandlerFunc2(goodsCategory.SelectByName))
 
 	err := http.ListenAndServe(":80", nil)
 	if err != nil {
@@ -41,5 +45,11 @@ func MyHandlerFunc(handleFunc func(w http.ResponseWriter, r *http.Request)) func
 	sessionMiddleware := &middlewares.SessionMiddleware{}
 	initMiddleware.NextTask = sessionMiddleware.HandleFunc
 	sessionMiddleware.NextTask = handleFunc
+	return initMiddleware.HandleFunc
+}
+
+func MyHandlerFunc2(handleFunc func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
+	initMiddleware := &middlewares.InitMiddleware{}
+	initMiddleware.NextTask = handleFunc
 	return initMiddleware.HandleFunc
 }
