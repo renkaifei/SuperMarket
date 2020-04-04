@@ -3,21 +3,16 @@ package repo
 import (
 	"database/sql"
 	"errors"
-	"log"
-	"strconv"
 )
 
 type Goods struct {
-	GoodsId      int
-	GoodsCode    string
-	GoodsName    string
-	CategoryId   int
-	GoodsBarCode string
-	MerchantId   int
-}
-
-func NewGoods(goodsId int, goodsCode string, goodsName string, categoryId int, goodsBarCode string, merchantId int) *Goods {
-	return &Goods{GoodsId: goodsId, GoodsCode: goodsCode, GoodsName: goodsName, CategoryId: categoryId, GoodsBarCode: goodsBarCode, MerchantId: merchantId}
+	GoodsId            int
+	GoodsBarCode       string
+	GoodsName          string
+	GoodsSpecification string
+	GoodsDescription   string
+	GoodsTradeMark     string
+	Company            string
 }
 
 func (a *Goods) Create() error {
@@ -29,20 +24,20 @@ func (a *Goods) Create() error {
 		return err
 	}
 	defer tx.Rollback()
-	row := tx.QueryRow(" select goodsId from goods where goodsCode = ? ", a.GoodsCode)
+	row := tx.QueryRow(" select goodsId from goods where goodsBarCode = ? ", a.GoodsBarCode)
 	err = row.Scan(&goodsId)
 	if err != sql.ErrNoRows {
-		return errors.New("商品编码[" + a.GoodsCode + "]已经存在")
+		return errors.New("商品[" + a.GoodsName + "]已经存在")
 	}
-	result, err := tx.Exec(" insert into goods(goodsCode,goodsName,goodsCategoryId,goodsBarCode,merchantId)values(?,?,?,?,?) ", a.GoodsCode, a.GoodsName, a.CategoryId, a.GoodsBarCode, a.MerchantId)
-	if err != nil {
-		return err
-	}
-	goodsId, err = result.LastInsertId()
+	result, err := tx.Exec(" insert into goods(goodsBarCode,goodsName,goodsSpecification,goodsDescription,goodsTradeMark,company)values(?,?,?,?,?,?) ", a.GoodsBarCode, a.GoodsName, a.GoodsSpecification, a.GoodsDescription, a.GoodsTradeMark, a.Company)
 	if err != nil {
 		return err
 	}
 	if err = tx.Commit(); err != nil {
+		return err
+	}
+	goodsId, err = result.LastInsertId()
+	if err != nil {
 		return err
 	}
 	a.GoodsId = int(goodsId)
@@ -57,12 +52,12 @@ func (a *Goods) Update() error {
 	if err != nil {
 		return err
 	}
-	row := tx.QueryRow("select goodsId from Goods where goodsCode = ?", a.GoodsCode)
+	row := tx.QueryRow("select goodsId from Goods where goodsBarCode = ? and goodsId <> ? ", a.GoodsBarCode, a.GoodsId)
 	err = row.Scan(&goodsId)
 	if err != sql.ErrNoRows {
-		return errors.New("商品编码[" + a.GoodsCode + "]已经存在")
+		return errors.New("商品编码[" + a.GoodsName + "]已经存在")
 	}
-	_, err = tx.Exec(" update Goods set GoodsCode = ?,GoodsName = ?,GoodsBarCode = ?,MerchantId = ? where GoodsId = ?  ", a.GoodsCode, a.GoodsName, a.GoodsBarCode, a.MerchantId, a.GoodsId)
+	_, err = tx.Exec(" update Goods set GoodsBarCode = ?,GoodsName = ?,GoodsSpecification = ?,GoodsDescription = ?,GoodsTradeMark = ?,Company = ? where GoodsId = ?  ", a.GoodsBarCode, a.GoodsName, a.GoodsSpecification, a.GoodsDescription, a.GoodsTradeMark, a.Company, a.GoodsId)
 	if err != nil {
 		return err
 	}
@@ -89,8 +84,8 @@ func (a *Goods) Delete() error {
 }
 
 func (a *Goods) SelectById() error {
-	row := mySqlDB.QueryRow(" select GoodsId,GoodsCode,GoodsName,GoodsCategoryId,GoodsBarCode,MerchantId from Goods where GoodsId = ? ", a.GoodsId)
-	err := row.Scan(&a.GoodsId, &a.GoodsCode, &a.GoodsName, &a.CategoryId, &a.GoodsBarCode, &a.MerchantId)
+	row := mySqlDB.QueryRow(" select GoodsId,GoodsBarCode,GoodsName,GoodsSpecification,GoodsDescription,GoodsTradeMark,Company from Goods where GoodsId = ? ", a.GoodsId)
+	err := row.Scan(&a.GoodsId, &a.GoodsBarCode, &a.GoodsName, &a.GoodsSpecification, &a.GoodsDescription, &a.GoodsTradeMark, &a.Company)
 	if err != nil {
 		return err
 	}
@@ -98,22 +93,31 @@ func (a *Goods) SelectById() error {
 }
 
 type Goodses struct {
-	Values []*Goods
+	Values     []*Goods
+	PageIndex  int
+	PageSize   int
+	TotalCount int
 }
 
-func (a *Goodses) SelectInMerchant(merchantId int) error {
-	log.Println("merchantId:" + strconv.Itoa(merchantId))
-	rows, err := mySqlDB.Query(" select goodsId,goodsName,goodsCode,goodsCategoryId,goodsBarCode,MerchantId from goods where MerchantId = ? ", merchantId)
+func (a *Goodses) SelectOnePage(content string, pageIndex int, pageSize int) error {
+	row := mySqlDB.QueryRow("select count(*) totalCount from goods where goodsName like ? ", "%"+content+"%")
+	err := row.Scan(&a.TotalCount)
+	if err != nil {
+		return err
+	}
+	rows, err := mySqlDB.Query(" select goodsId,goodsBarCode,goodsName,goodsSpecification,goodsDescription,goodsTradeMark,company from goods where goodsName like ? limit ?,? ", "%"+content+"%", (pageIndex-1)*pageSize, pageSize)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		goods := &Goods{}
-		if err := rows.Scan(&goods.GoodsId, &goods.GoodsName, &goods.GoodsCode, &goods.CategoryId, &goods.GoodsBarCode, &goods.MerchantId); err != nil {
+		if err := rows.Scan(&goods.GoodsId, &goods.GoodsBarCode, &goods.GoodsName, &goods.GoodsSpecification, &goods.GoodsDescription, &goods.GoodsTradeMark, &goods.Company); err != nil {
 			return err
 		}
 		a.Values = append(a.Values, goods)
 	}
+	a.PageIndex = pageIndex
+	a.PageSize = pageSize
 	return nil
 }

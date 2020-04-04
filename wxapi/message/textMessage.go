@@ -2,6 +2,7 @@ package message
 
 import (
 	"encoding/xml"
+	"superMarket/repo"
 	"time"
 )
 
@@ -13,6 +14,7 @@ type TextMessage struct {
 	MsgType      CDATA
 	Content      CDATA
 	MsgId        int64
+	SessionId    string `xml:"-"`
 }
 
 func (a *TextMessage) UnMarshal(data []byte) error {
@@ -54,12 +56,16 @@ func (a *TextMessage) Reply() (ret string, err error) {
 }
 
 func (a *TextMessage) UploadGoods() (ret string, err error) {
+	goSessionId, err := repo.SetExpireKey(a.FromUserName.Text, a.FromUserName.Text, 20*60)
+	if err != nil {
+		return "", err
+	}
 	v := &TextMessage{}
 	v.ToUserName.Text = a.FromUserName.Text
 	v.FromUserName.Text = a.ToUserName.Text
 	v.CreateTime = int(time.Now().Unix())
 	v.MsgType.Text = a.MsgType.Text
-	v.Content.Text = "<a href=\"http://www.daxuebaokao.cn/views/login.html?fromUserName=" + a.FromUserName.Text + "\">上传宝贝</a>"
+	v.Content.Text = "<a href=\"http://www.daxuebaokao.cn/views/goods.html?goSessionId=" + goSessionId + "\">上传宝贝</a>"
 	data, err := xml.Marshal(v)
 	if err != nil {
 		return err.Error(), nil
