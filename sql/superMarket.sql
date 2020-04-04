@@ -5,13 +5,15 @@ use superMarket;
 
 create table if not exists goods(
 	goodsId int not null auto_increment,
+	goodsBarCode varchar(50) not null,
 	goodsName varchar(256) not null,
-	goodsCode varchar(256) not null,
-	goodsCategoryId int not null,
-	goodsBarCode varchar(128) not null default '',
-	merchantId int not null,
+	goodsSpecification varchar(256) not null,
+	goodsDescription int not null,
+	goodsTrademark varchar(128) not null default '',
+	company varchar(256) not null,
 	primary key(goodsId)
-);
+)CHARACTER SET utf8 COLLATE utf8_general_ci;
+
 
 create table if not exists goodsCategory (
 	categoryId int not null auto_increment,
@@ -25,6 +27,10 @@ create table if not exists merchanter (
 	merchanterOpenId varchar(256) not null,
 	merchanterName varchar(256) not null,
 	merchantId int not null,
+	mobilePhone varchar(50) not null,
+	pwd varchar(50) not null,
+	IDNumber varchar(20) not null,
+	isAdmin int not null,
 	primary key(merchanterId)
 );
 
