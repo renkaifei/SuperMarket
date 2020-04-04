@@ -56,6 +56,11 @@ func (a *TextMessage) Reply() (ret string, err error) {
 }
 
 func (a *TextMessage) UploadGoods() (ret string, err error) {
+	merchanter := &repo.Merchanter{MerchanterOpenId: a.FromUserName.Text}
+	err = merchanter.SelectByOpenId()
+	if err != nil {
+		return "", err
+	}
 	goSessionId, err := repo.SetExpireKey(a.FromUserName.Text, a.FromUserName.Text, 20*60)
 	if err != nil {
 		return "", err
@@ -65,7 +70,11 @@ func (a *TextMessage) UploadGoods() (ret string, err error) {
 	v.FromUserName.Text = a.ToUserName.Text
 	v.CreateTime = int(time.Now().Unix())
 	v.MsgType.Text = a.MsgType.Text
-	v.Content.Text = "<a href=\"http://www.daxuebaokao.cn/views/goods.html?goSessionId=" + goSessionId + "\">上传宝贝</a>"
+	if merchanter.IsAdmin == 1 {
+		v.Content.Text = "<a href=\"http://www.daxuebaokao.cn/views/goods.html?goSessionId=" + goSessionId + "\">上传宝贝</a>"
+	} else {
+		v.Content.Text = "<a href=\"http://www.daxuebaokao.cn/views/merchantgoods.html?goSessionId=" + goSessionId + "\">上传宝贝</a>"
+	}
 	data, err := xml.Marshal(v)
 	if err != nil {
 		return err.Error(), nil
