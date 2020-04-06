@@ -19,7 +19,8 @@ func main() {
 	http.HandleFunc("/goods/update", MyHandlerFunc(goodsController.Update))
 	http.HandleFunc("/goods/delete", MyHandlerFunc(goodsController.Delete))
 	http.HandleFunc("/goods/selectById", MyHandlerFunc(goodsController.SelectById))
-	http.HandleFunc("/goods/selectInMerchant", MyHandlerFunc(goodsController.SelectInMerchant))
+	http.HandleFunc("/goods/selectOnePage", MyHandlerFunc(goodsController.SelectOnePage))
+	http.HandleFunc("/goods/selectByBarCode", MyHandlerFunc(goodsController.SelectByBarCode))
 
 	wxController := &controllers.WxController{}
 	http.HandleFunc("/wx/ListenMessage", wxController.ListenMessage)
@@ -32,8 +33,14 @@ func main() {
 	http.HandleFunc("/merchant/selectById", MyHandlerFunc(merchantController.SelectById))
 
 	goodsCategory := &controllers.GoodsCategoryController{}
-	http.HandleFunc("/goodsCategory/selectByName", MyHandlerFunc2(goodsCategory.SelectByName))
+	http.HandleFunc("/goodsCategory/selectByName", MyHandlerFunc(goodsCategory.SelectByName))
 
+	merchantGoods := &controllers.MerchantGoodsController{}
+	http.HandleFunc("/merchantGoods/selectByMerchantIdAndGoodsId", MyHandlerFunc(merchantGoods.SelectByMerchantIdAndGoodsId))
+	http.HandleFunc("/merchantGoods/create", MyHandlerFunc(merchantGoods.Create))
+	http.HandleFunc("/merchantGoods/update", MyHandlerFunc(merchantGoods.Update))
+	http.HandleFunc("/merchantGoods/delete", MyHandlerFunc(merchantGoods.Delete))
+	http.HandleFunc("/merchantGoods/selectPageByMerchantId", MyHandlerFunc(merchantGoods.SelectPageByMerchantId))
 	err := http.ListenAndServe(":80", nil)
 	if err != nil {
 		log.Fatal(err)
