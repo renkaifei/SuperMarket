@@ -12,22 +12,14 @@ type GoodsController struct {
 }
 
 func (a *GoodsController) Create(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	goodsCode := r.PostFormValue("goodsCode")
-	goodsName := r.PostFormValue("goodsName")
 	goodsBarCode := r.PostFormValue("goodsBarCode")
-	categoryId, err := strconv.Atoi(r.PostFormValue("categoryId"))
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-	merchantId, err := strconv.Atoi(r.PostFormValue("merchantId"))
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-	goods := repo.NewGoods(0, goodsCode, goodsName, categoryId, goodsBarCode, merchantId)
-	err = goods.Create()
+	goodsName := r.PostFormValue("goodsName")
+	goodsSpecification := r.PostFormValue("goodsSpecification")
+	goodsDescription := r.PostFormValue("goodsDescription")
+	goodsTradeMark := r.PostFormValue("goodsTradeMark")
+	company := r.PostFormValue("company")
+	goods := &repo.Goods{GoodsBarCode: goodsBarCode, GoodsName: goodsName, GoodsSpecification: goodsSpecification, GoodsDescription: goodsDescription, GoodsTradeMark: goodsTradeMark, Company: company}
+	err := goods.Create()
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
@@ -41,26 +33,18 @@ func (a *GoodsController) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *GoodsController) Update(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	goodsCode := r.PostFormValue("goodsCode")
-	goodsName := r.PostFormValue("goodsName")
 	goodsBarCode := r.PostFormValue("goodsBarCode")
+	goodsName := r.PostFormValue("goodsName")
+	goodsSpecification := r.PostFormValue("goodsSpecification")
+	goodsDescription := r.PostFormValue("goodsDescription")
+	goodsTradeMark := r.PostFormValue("goodsTradeMark")
+	company := r.PostFormValue("company")
 	goodsId, err := strconv.Atoi(r.PostFormValue("goodsId"))
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	categoryId, err := strconv.Atoi(r.PostFormValue("categoryId"))
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-	merchantId, err := strconv.Atoi(r.PostFormValue("merchantId"))
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-	goods := repo.NewGoods(goodsId, goodsCode, goodsName, categoryId, goodsBarCode, merchantId)
+	goods := &repo.Goods{GoodsId: goodsId, GoodsBarCode: goodsBarCode, GoodsName: goodsName, GoodsSpecification: goodsSpecification, GoodsDescription: goodsDescription, GoodsTradeMark: goodsTradeMark, Company: company}
 	err = goods.Update()
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -75,13 +59,12 @@ func (a *GoodsController) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *GoodsController) Delete(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
 	goodsId, err := strconv.Atoi(r.PostFormValue("goodsId"))
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	goods := repo.NewGoods(goodsId, "", "", 0, "", 0)
+	goods := &repo.Goods{GoodsId: goodsId}
 	err = goods.Delete()
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -96,13 +79,12 @@ func (a *GoodsController) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *GoodsController) SelectById(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
 	goodsId, err := strconv.Atoi(r.PostFormValue("goodsId"))
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	goods := repo.NewGoods(goodsId, "", "", 0, "", 0)
+	goods := &repo.Goods{GoodsId: goodsId}
 	err = goods.SelectById()
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -116,20 +98,42 @@ func (a *GoodsController) SelectById(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, string(result))
 }
 
-func (a *GoodsController) SelectInMerchant(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	merchantId, err := strconv.Atoi(r.PostFormValue("merchantId"))
+func (a *GoodsController) SelectOnePage(w http.ResponseWriter, r *http.Request) {
+	content := r.PostFormValue("content")
+	pageIndex, err := strconv.Atoi(r.PostFormValue("pageIndex"))
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	pageSize, err := strconv.Atoi(r.PostFormValue("pageSize"))
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
 	goodses := &repo.Goodses{}
-	err = goodses.SelectInMerchant(merchantId)
+	goodses.Values = make([]*repo.Goods, 0)
+	err = goodses.SelectOnePage(content, pageIndex, pageSize)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	result, err := json.Marshal(goodses.Values)
+	result, err := json.Marshal(goodses)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	io.WriteString(w, string(result))
+}
+
+func (a *GoodsController) SelectByBarCode(w http.ResponseWriter, r *http.Request) {
+	barCode := r.PostFormValue("barCode")
+	goods := &repo.Goods{GoodsBarCode: barCode}
+	err := goods.SelectByBarCode()
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	result, err := json.Marshal(goods)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
