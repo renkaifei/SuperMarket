@@ -14,6 +14,15 @@ create table if not exists goods(
 	primary key(goodsId)
 )CHARACTER SET utf8 COLLATE utf8_general_ci;
 
+create table if not exists merchantGoods(
+	merchantGoodsId int not null auto_increment,
+	goodsId int ,
+	merchantId int,
+	price decimal(10,2),
+	discount decimal(10,2)
+	primary key(merchantGoodsId);
+);
+
 
 create table if not exists goodsCategory (
 	categoryId int not null auto_increment,

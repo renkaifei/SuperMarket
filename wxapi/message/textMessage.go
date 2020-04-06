@@ -73,7 +73,7 @@ func (a *TextMessage) UploadGoods() (ret string, err error) {
 	if merchanter.IsAdmin == 1 {
 		v.Content.Text = "<a href=\"http://www.daxuebaokao.cn/views/goods.html?goSessionId=" + goSessionId + "\">上传宝贝</a>"
 	} else {
-		v.Content.Text = "<a href=\"http://www.daxuebaokao.cn/views/merchantgoods.html?goSessionId=" + goSessionId + "\">上传宝贝</a>"
+		v.Content.Text = "<a href=\"http://www.daxuebaokao.cn/views/merchantgoods.html?goSessionId=" + goSessionId + "&merchantId=" + merchanter.MerchantId + "\">上传宝贝</a>"
 	}
 	data, err := xml.Marshal(v)
 	if err != nil {

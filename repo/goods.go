@@ -92,6 +92,12 @@ func (a *Goods) SelectById() error {
 	return nil
 }
 
+func (a *Goods) SelectByBarCode() error {
+	row := mySqlDB.QueryRow("select GoodsId,GoodsBarCode,GoodsName,GoodsSpecification,GoodsDescription,GoodsTradeMark,Company from Goods where GoodsBarCode = ? ", a.GoodsBarCode)
+	err := row.Scan(&a.GoodsId, &a.GoodsBarCode, &a.GoodsName, &a.GoodsSpecification, &a.GoodsDescription, &a.GoodsTradeMark, &a.Company)
+	return err
+}
+
 type Goodses struct {
 	Values     []*Goods
 	PageIndex  int
