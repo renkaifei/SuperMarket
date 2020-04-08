@@ -53,3 +53,12 @@ create table if not exists merchant (
 	mobilePhone varchar(20) not null,
 	primary key(merchantId)
 );
+
+create table if not exists university(
+	universityId int not null auto_increment,
+	universityName varchar(128) not null,
+	universityCode varchar(20) not null,
+	universityAddress varchar(256) not null,
+	universityPicture varchar(256) not null,
+	primary key(universityId)
+);
