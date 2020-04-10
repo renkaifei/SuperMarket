@@ -6,13 +6,13 @@ import (
 )
 
 type Goods struct {
-	GoodsId            int
-	GoodsBarCode       string
-	GoodsName          string
-	GoodsSpecification string
-	GoodsDescription   string
-	GoodsTradeMark     string
-	Company            string
+	GoodsId            int    `json:"goodsId"`
+	GoodsBarCode       string `json:"goodsBarCode"`
+	GoodsName          string `json:"goodsName"`
+	GoodsSpecification string `json:"goodsSpecification"`
+	GoodsDescription   string `json:"goodsDescription"`
+	GoodsTradeMark     string `json:"goodsTradeMark"`
+	Company            string `json:"company"`
 }
 
 func (a *Goods) Create() error {
