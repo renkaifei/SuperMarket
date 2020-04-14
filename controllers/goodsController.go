@@ -18,7 +18,8 @@ func (a *GoodsController) Create(w http.ResponseWriter, r *http.Request) {
 	goodsDescription := r.PostFormValue("goodsDescription")
 	goodsTradeMark := r.PostFormValue("goodsTradeMark")
 	company := r.PostFormValue("company")
-	goods := &repo.Goods{GoodsBarCode: goodsBarCode, GoodsName: goodsName, GoodsSpecification: goodsSpecification, GoodsDescription: goodsDescription, GoodsTradeMark: goodsTradeMark, Company: company}
+	goodsPicture := r.PostFormValue("goodsPicture")
+	goods := &repo.Goods{GoodsBarCode: goodsBarCode, GoodsName: goodsName, GoodsSpecification: goodsSpecification, GoodsDescription: goodsDescription, GoodsTradeMark: goodsTradeMark, Company: company, GoodsPicture: goodsPicture}
 	err := goods.Create()
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -39,12 +40,13 @@ func (a *GoodsController) Update(w http.ResponseWriter, r *http.Request) {
 	goodsDescription := r.PostFormValue("goodsDescription")
 	goodsTradeMark := r.PostFormValue("goodsTradeMark")
 	company := r.PostFormValue("company")
+	goodsPicture := r.PostFormValue("goodsPicture")
 	goodsId, err := strconv.Atoi(r.PostFormValue("goodsId"))
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	goods := &repo.Goods{GoodsId: goodsId, GoodsBarCode: goodsBarCode, GoodsName: goodsName, GoodsSpecification: goodsSpecification, GoodsDescription: goodsDescription, GoodsTradeMark: goodsTradeMark, Company: company}
+	goods := &repo.Goods{GoodsId: goodsId, GoodsBarCode: goodsBarCode, GoodsName: goodsName, GoodsSpecification: goodsSpecification, GoodsDescription: goodsDescription, GoodsTradeMark: goodsTradeMark, Company: company, GoodsPicture: goodsPicture}
 	err = goods.Update()
 	if err != nil {
 		http.Error(w, err.Error(), 500)

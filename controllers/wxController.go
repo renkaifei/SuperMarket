@@ -6,7 +6,6 @@ import (
 	"github.com/satori/go.uuid"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 	"superMarket/repo"
@@ -67,7 +66,6 @@ func (a *WxController) ListenMessage(w http.ResponseWriter, r *http.Request) {
 		}
 		io.WriteString(w, str)
 	} else if msgType.MsgType.Text == "event" {
-		log.Println("msgType:event")
 		eventType := &message.EventType{}
 		err = eventType.Unmarshal(body)
 		if err != nil {
