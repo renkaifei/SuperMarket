@@ -33,7 +33,7 @@ func (a *Subscribe) SubscribeReply() (reply string, err error) {
 	message.ToUserName.Text = a.FromUserName.Text
 	message.CreateTime = int(time.Now().Unix())
 	message.MsgType.Text = "text"
-	message.Content.Text = "感谢您关注研飞超市，我们将竭尽全力为您提供最优质的本地化生活服务"
+	message.Content.Text = "感谢您关注研飞超市.我们将为您提供专业的本地化服务"
 	result, err := xml.Marshal(message)
 	return string(result), err
 }
