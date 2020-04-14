@@ -41,6 +41,9 @@ func main() {
 	http.HandleFunc("/merchantGoods/update", MyHandlerFunc(merchantGoods.Update))
 	http.HandleFunc("/merchantGoods/delete", MyHandlerFunc(merchantGoods.Delete))
 	http.HandleFunc("/merchantGoods/selectPageByMerchantId", MyHandlerFunc(merchantGoods.SelectPageByMerchantId))
+
+	universityController := &controllers.UniversityController{}
+	http.HandleFunc("/university/create", MyHandlerFunc(universityController.Create))
 	err := http.ListenAndServe(":80", nil)
 	if err != nil {
 		log.Fatal(err)
