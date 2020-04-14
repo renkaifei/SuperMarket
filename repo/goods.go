@@ -13,6 +13,7 @@ type Goods struct {
 	GoodsDescription   string `json:"goodsDescription"`
 	GoodsTradeMark     string `json:"goodsTradeMark"`
 	Company            string `json:"company"`
+	GoodsPicture       string `json:"goodsPicture"`
 }
 
 func (a *Goods) Create() error {
@@ -29,7 +30,7 @@ func (a *Goods) Create() error {
 	if err != sql.ErrNoRows {
 		return errors.New("商品[" + a.GoodsName + "]已经存在")
 	}
-	result, err := tx.Exec(" insert into goods(goodsBarCode,goodsName,goodsSpecification,goodsDescription,goodsTradeMark,company)values(?,?,?,?,?,?) ", a.GoodsBarCode, a.GoodsName, a.GoodsSpecification, a.GoodsDescription, a.GoodsTradeMark, a.Company)
+	result, err := tx.Exec(" insert into goods(goodsBarCode,goodsName,goodsSpecification,goodsDescription,goodsTradeMark,company,goodsPicture)values(?,?,?,?,?,?,?) ", a.GoodsBarCode, a.GoodsName, a.GoodsSpecification, a.GoodsDescription, a.GoodsTradeMark, a.Company, a.GoodsPicture)
 	if err != nil {
 		return err
 	}
@@ -57,7 +58,7 @@ func (a *Goods) Update() error {
 	if err != sql.ErrNoRows {
 		return errors.New("商品编码[" + a.GoodsName + "]已经存在")
 	}
-	_, err = tx.Exec(" update Goods set GoodsBarCode = ?,GoodsName = ?,GoodsSpecification = ?,GoodsDescription = ?,GoodsTradeMark = ?,Company = ? where GoodsId = ?  ", a.GoodsBarCode, a.GoodsName, a.GoodsSpecification, a.GoodsDescription, a.GoodsTradeMark, a.Company, a.GoodsId)
+	_, err = tx.Exec(" update Goods set GoodsBarCode = ?,GoodsName = ?,GoodsSpecification = ?,GoodsDescription = ?,GoodsTradeMark = ?,Company = ?,GoodsPicture = ? where GoodsId = ?  ", a.GoodsBarCode, a.GoodsName, a.GoodsSpecification, a.GoodsDescription, a.GoodsTradeMark, a.Company, a.GoodsPicture, a.GoodsId)
 	if err != nil {
 		return err
 	}
@@ -84,8 +85,8 @@ func (a *Goods) Delete() error {
 }
 
 func (a *Goods) SelectById() error {
-	row := mySqlDB.QueryRow(" select GoodsId,GoodsBarCode,GoodsName,GoodsSpecification,GoodsDescription,GoodsTradeMark,Company from Goods where GoodsId = ? ", a.GoodsId)
-	err := row.Scan(&a.GoodsId, &a.GoodsBarCode, &a.GoodsName, &a.GoodsSpecification, &a.GoodsDescription, &a.GoodsTradeMark, &a.Company)
+	row := mySqlDB.QueryRow(" select GoodsId,GoodsBarCode,GoodsName,GoodsSpecification,GoodsDescription,GoodsTradeMark,Company,GoodsPicture from Goods where GoodsId = ? ", a.GoodsId)
+	err := row.Scan(&a.GoodsId, &a.GoodsBarCode, &a.GoodsName, &a.GoodsSpecification, &a.GoodsDescription, &a.GoodsTradeMark, &a.Company, &a.GoodsPicture)
 	if err != nil {
 		return err
 	}
@@ -93,8 +94,8 @@ func (a *Goods) SelectById() error {
 }
 
 func (a *Goods) SelectByBarCode() error {
-	row := mySqlDB.QueryRow("select GoodsId,GoodsBarCode,GoodsName,GoodsSpecification,GoodsDescription,GoodsTradeMark,Company from Goods where GoodsBarCode = ? ", a.GoodsBarCode)
-	err := row.Scan(&a.GoodsId, &a.GoodsBarCode, &a.GoodsName, &a.GoodsSpecification, &a.GoodsDescription, &a.GoodsTradeMark, &a.Company)
+	row := mySqlDB.QueryRow("select GoodsId,GoodsBarCode,GoodsName,GoodsSpecification,GoodsDescription,GoodsTradeMark,Company,GoodsPicture from Goods where GoodsBarCode = ? ", a.GoodsBarCode)
+	err := row.Scan(&a.GoodsId, &a.GoodsBarCode, &a.GoodsName, &a.GoodsSpecification, &a.GoodsDescription, &a.GoodsTradeMark, &a.Company, &a.GoodsPicture)
 	return err
 }
 
@@ -111,14 +112,14 @@ func (a *Goodses) SelectOnePage(content string, pageIndex int, pageSize int) err
 	if err != nil {
 		return err
 	}
-	rows, err := mySqlDB.Query(" select goodsId,goodsBarCode,goodsName,goodsSpecification,goodsDescription,goodsTradeMark,company from goods where goodsName like ? limit ?,? ", "%"+content+"%", (pageIndex-1)*pageSize, pageSize)
+	rows, err := mySqlDB.Query(" select goodsId,goodsBarCode,goodsName,goodsSpecification,goodsDescription,goodsTradeMark,company,GoodsPicture from goods where goodsName like ? limit ?,? ", "%"+content+"%", (pageIndex-1)*pageSize, pageSize)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		goods := &Goods{}
-		if err := rows.Scan(&goods.GoodsId, &goods.GoodsBarCode, &goods.GoodsName, &goods.GoodsSpecification, &goods.GoodsDescription, &goods.GoodsTradeMark, &goods.Company); err != nil {
+		if err := rows.Scan(&goods.GoodsId, &goods.GoodsBarCode, &goods.GoodsName, &goods.GoodsSpecification, &goods.GoodsDescription, &goods.GoodsTradeMark, &goods.Company, &goods.GoodsPicture); err != nil {
 			return err
 		}
 		a.Values = append(a.Values, goods)

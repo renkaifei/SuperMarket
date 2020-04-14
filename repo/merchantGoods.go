@@ -6,12 +6,12 @@ import (
 )
 
 type MerchantGoods struct {
-	MerchantGoodsId int
-	MerchantId      int
-	GoodsId         int
-	GoodsName       string
-	Price           float64
-	Discount        float64
+	MerchantGoodsId int     `json:"merchantGoodsId"`
+	MerchantId      int     `json:"merchantId"`
+	GoodsId         int     `json:"goodsId"`
+	GoodsName       string  `json:"goodsName"`
+	Price           float64 `json:"price"`
+	Discount        float64 `json:"discount"`
 }
 
 func (a *MerchantGoods) Create() error {
@@ -85,8 +85,8 @@ func (a *MerchantGoods) SelectById() error {
 }
 
 func (a *MerchantGoods) SelectByMerchantIdAndGoodsId() error {
-	row := mySqlDB.QueryRow("select MerchantGoodsId,MerchantId,GoodsId,Price,Discount from MerchantGoods where MerchantId = ? and GoodsId = ? ", a.MerchantId, a.GoodsId)
-	err := row.Scan(&a.MerchantGoodsId, &a.MerchantId, &a.GoodsId, &a.Price, &a.Discount)
+	row := mySqlDB.QueryRow("select MerchantGoodsId,MerchantId,merchantGoods.GoodsId,Price,Discount,GoodsName from MerchantGoods join goods on MerchantGoods.GoodsId = goods.GoodsId where MerchantId = ? and MerchantGoods.GoodsId = ? ", a.MerchantId, a.GoodsId)
+	err := row.Scan(&a.MerchantGoodsId, &a.MerchantId, &a.GoodsId, &a.Price, &a.Discount, &a.GoodsName)
 	if err == sql.ErrNoRows {
 		return nil
 	}
