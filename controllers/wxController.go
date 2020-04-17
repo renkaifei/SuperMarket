@@ -85,6 +85,20 @@ func (a *WxController) ListenMessage(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			io.WriteString(w, reply)
+		} else if eventType.Event.Text == "CLICK" {
+			customMenuEvent := &message.CustomMenuEvent{}
+			err := customMenuEvent.Unmarshal(body)
+			if err != nil {
+				http.Error(w, err.Error(), 500)
+				return
+			}
+			result, err := customMenuEvent.Reply()
+			if err != nil {
+				http.Error(w, err.Error(), 500)
+				return
+			}
+			io.WriteString(w, result)
+			return
 		} else {
 
 		}
