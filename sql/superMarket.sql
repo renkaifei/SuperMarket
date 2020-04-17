@@ -62,3 +62,22 @@ create table if not exists university(
 	universityPicture varchar(256) not null,
 	primary key(universityId)
 );
+
+create table if not exists goodsRecomentdation(
+	goodsRecommentdationId int not null auto_increment,
+	goodsTitle varchar(216) not null,
+	goodsDescription varchar(512) not null,
+	goodsPicUrl varchar(512) not null,
+	goodsUrl varchar(512) not null
+)
+
+create table if not exists Article(
+	articleId int not null auto_increment,
+	articleTitle varchar(256) not null,
+	articleDescription varchar(512) not null,
+	articlePicUrl varchar(512) not null,
+	aritcleUrl varchar(512) not null,
+	primary key(articleId)
+)
+
+
