@@ -2,6 +2,7 @@ package message
 
 import (
 	"encoding/xml"
+	"log"
 	"superMarket/repo"
 	"superMarket/wxapi/menu"
 	"time"
@@ -44,6 +45,7 @@ func (a *TextMessage) Reply() (ret string, err error) {
 	} else if a.Content.Text == "创建菜单" {
 		return a.CreateMenu()
 	} else if a.Content.Text == "删除菜单" {
+		log.Println(123)
 		return a.DeleteMenu()
 	} else {
 		v := &TextMessage{}

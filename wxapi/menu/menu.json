@@ -1,1 +1,1 @@
-{"button":[{"name":"今日推荐","type":"click","key":"todayRecommendation"},{"name":"商城","type":"click","key":"shoppingMall"},{"name":"高校","type":"click","key":"university"}]}
+{"button":[{"name":"今日推荐","type":"click","key":"todayRecommendation"},{"name":"商城","type":"click","key":"shoppingMall"},{"name":"高校","type":"view","url":"http://www.daxuebaokao.cn/universitylist"}]}
